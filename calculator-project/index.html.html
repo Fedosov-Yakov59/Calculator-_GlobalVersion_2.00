@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Умный калькулятор с Mini DeepSeek Transformer</title>
+    
+    <!-- Подключаем стили -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/auth.css">
+    <link rel="stylesheet" href="styles/calculator.css">
+    <link rel="stylesheet" href="styles/admin.css">
+    <link rel="stylesheet" href="styles/event.css">
+</head>
+<body>
+    <!-- Музыкальный плеер -->
+    <div class="music-player" id="music-player">
+        <div class="music-info">
+            <div class="music-icon">🎵</div>
+            <div class="music-title" id="music-title">Григ - Утро</div>
+        </div>
+        <div class="music-controls">
+            <button class="music-btn" id="prev-music" title="Предыдущий трек">⏮</button>
+            <button class="music-btn" id="play-music-btn" title="Воспроизвести/Пауза">▶️</button>
+            <button class="music-btn" id="next-music" title="Следующий трек">⏭</button>
+            <div class="music-progress" id="music-progress-container">
+                <div class="music-progress-bar" id="music-progress"></div>
+            </div>
+            <div class="music-time" id="music-time">0:00 / 0:00</div>
+        </div>
+        <div class="volume-control">
+            <span>🔊</span>
+            <input type="range" class="volume-slider" id="music-volume" min="0" max="100" value="50" title="Громкость">
+        </div>
+        <div class="music-theme-selector">
+            <div class="theme-buttons">
+                <button class="theme-btn active" data-theme="classic">Классика</button>
+                <button class="theme-btn" data-theme="magical">Магия</button>
+                <button class="theme-btn" data-theme="calm">Спокойная</button>
+                <button class="theme-btn" data-theme="none">Выкл</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки настроек и информации -->
+    <button class="settings-button" id="settings-button">⚙️</button>
+    <button class="info-button" id="info-button">i</button>
+    
+    <!-- Панель настроек -->
+    <div class="overlay" id="settings-overlay"></div>
+    <div class="settings-panel" id="settings-panel">
+        <button class="close-button" id="close-settings">✕</button>
+        <h2>Настройки профиля</h2>
+        
+        <div class="settings-section">
+            <h3>Основная информация</h3>
+            <div class="form-group">
+                <label for="profile-username">Имя пользователя</label>
+                <input type="text" id="profile-username" placeholder="Введите имя пользователя">
+            </div>
+            <div class="form-group">
+                <label for="profile-email">Электронная почта</label>
+                <input type="email" id="profile-email" placeholder="Введите email">
+            </div>
+            <button class="auth-button" id="save-profile">Сохранить изменения</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Безопасность</h3>
+            <div class="form-group">
+                <label for="current-password">Текущий пароль</label>
+                <input type="password" id="current-password" placeholder="Введите текущий пароль">
+            </div>
+            <div class="form-group">
+                <label for="new-password">Новый пароль</label>
+                <input type="password" id="new-password" placeholder="Введите новый пароль">
+            </div>
+            <div class="form-group">
+                <label for="confirm-new-password">Подтвердите новый пароль</label>
+                <input type="password" id="confirm-new-password" placeholder="Повторите новый пароль">
+            </div>
+            <button class="auth-button" id="change-password">Сменить пароль</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Язык и звук</h3>
+            <div class="form-group">
+                <label for="language-select">Язык интерфейса</label>
+                <select id="language-select">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div class="volume-control">
+                <span>🔊 Громкость музыки</span>
+                <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="50">
+                <span id="volume-value">50%</span>
+            </div>
+            <div class="form-group">
+                <label>Музыкальная тема</label>
+                <select id="music-theme">
+                    <option value="classic">Классическая (Григ - Весна)</option>
+                    <option value="magical">Магическая (Гарри Поттер)</option>
+                    <option value="calm">Спокойная (Эмбиент)</option>
+                    <option value="none">Без музыки</option>
+                </select>
+            </div>
+            <button class="auth-button" id="apply-music-theme">Применить тему</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Мои трофеи и предметы</h3>
+            <div class="trophies-grid" id="trophies-grid">
+                <!-- Трофеи будут добавлены динамически -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Панель информации -->
+    <div class="overlay" id="info-overlay"></div>
+    <div class="info-panel" id="info-panel">
+        <button class="close-button" id="close-info">✕</button>
+        <h2>Информация о калькуляторе</h2>
+        
+        <div class="settings-section">
+            <h3>Основные функции</h3>
+            <p>Этот калькулятор поддерживает базовые арифметические операции, научные вычисления и специальные функции для подписчиков Pro и Pro+.</p>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Магические элементы</h3>
+            <p><strong>Зельеварение</strong> - это метафора для работы с матрицами и сложными математическими операциями, доступными в подписке Pro.</p>
+            <p><strong>Распределяющая Шляпа</strong> определяет ваш факультет в Хогвартсе, где вы можете зарабатывать очки для своего факультета.</p>
+            <p><strong>Магический магазин</strong> позволяет тратить заработанные очки на различные предметы и бонусы.</p>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Подписки</h3>
+            <p><strong>Pro🎃</strong> - расширенные математические функции, работа с матрицами, комплексными числами.</p>
+            <p><strong>Pro+☃️</strong> - все возможности Pro плюс продвинутые формулы, преобразования Фурье, статистический анализ.</p>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Музыка</h3>
+            <p>В калькуляторе есть фоновая музыка с разными темами:</p>
+            <ul>
+                <li><strong>Классическая</strong> - произведения Грига и Моцарта</li>
+                <li><strong>Магическая</strong> - темы в стиле Гарри Поттера</li>
+                <li><strong>Спокойная</strong> - эмбиент звуки для расслабления</li>
+                <li><strong>Без музыки</strong> - отключение звука</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Контейнер авторизации -->
+    <div class="auth-container" id="auth-container">
+        <h1 id="auth-title">Вход в калькулятор</h1>
+        
+        <div class="auth-form" id="login-form">
+            <div class="form-group">
+                <label for="login-username">Имя пользователя</label>
+                <input type="text" id="login-username" placeholder="Введите имя пользователя">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Пароль</label>
+                <input type="password" id="login-password" placeholder="Введите пароль">
+            </div>
+            <button class="auth-button" id="login-button">Войти</button>
+        </div>
+        
+        <div class="auth-form" id="register-form" style="display: none;">
+            <div class="form-group">
+                <label for="register-username">Имя пользователя</label>
+                <input type="text" id="register-username" placeholder="Придумайте имя пользователя">
+            </div>
+            <div class="form-group">
+                <label for="register-password">Пароль</label>
+                <input type="password" id="register-password" placeholder="Придумайте пароль">
+            </div>
+            <div class="form-group">
+                <label for="register-confirm">Подтверждение пароля</label>
+                <input type="password" id="register-confirm" placeholder="Повторите пароль">
+            </div>
+            <button class="auth-button" id="register-button">Зарегистрироваться</button>
+        </div>
+        
+        <div class="auth-switch">
+            <span id="auth-switch-text">Нет аккаунта?</span>
+            <span class="auth-link" id="auth-switch-link">Зарегистрироваться</span>
+        </div>
+        
+        <div class="error-message" id="error-message"></div>
+    </div>
+    
+    <!-- Контейнер с истекшей подпиской -->
+    <div class="subscription-expired" id="subscription-expired">
+        <h2>Подписка закончилась</h2>
+        <p>Обратитесь к разработчикам для продления подписки</p>
+        <button class="auth-button" id="back-to-login">Вернуться к входу</button>
+    </div>
+    
+    <!-- Контейнер калькулятора -->
+    <div class="calculator" id="calculator">
+        <div class="header">
+            <div class="user-info">
+                <span id="user-greeting">Привет, </span>
+                <span id="admin-badge" class="admin-badge" style="display: none;">ADMIN</span>
+                <span id="subscription-info" class="subscription-info" style="display: none;"></span>
+                <button class="logout-btn" id="logout-button">Выйти</button>
+            </div>
+        </div>
+        
+        <!-- Панель администратора -->
+        <div class="admin-panel" id="admin-panel" style="display: none;">
+            <h3>⚙️ Панель администратора</h3>
+            <div class="admin-controls">
+                <button class="admin-btn" id="view-users-btn">Пользователи</button>
+                <button class="admin-btn" id="subscription-btn">Подписки</button>
+                <button class="admin-btn" id="clear-all-history-btn">Очистить всю историю</button>
+                <button class="admin-btn" id="export-data-btn">Экспорт данных</button>
+                <button class="admin-btn" id="system-stats-btn">Статистика</button>
+                <button class="admin-btn" id="restore-admin-btn">Восстановить Admin</button>
+            </div>
+            
+            <div class="subscription-controls" id="subscription-controls">
+                <h4>Управление подписками</h4>
+                <div class="subscription-form">
+                    <select id="subscription-user">
+                        <option value="">Выберите пользователя</option>
+                    </select>
+                    <select id="subscription-type">
+                        <option value="basic">Базовая</option>
+                        <option value="pro">Pro🎃</option>
+                        <option value="pro-plus">Pro+☃️</option>
+                    </select>
+                    <select id="subscription-period">
+                        <option value="1">1 месяц</option>
+                        <option value="3">3 месяца</option>
+                        <option value="6">6 месяцев</option>
+                        <option value="12">1 год</option>
+                    </select>
+                    <button class="admin-btn" id="set-subscription-btn">Установить подписку</button>
+                </div>
+            </div>
+            
+            <div class="user-list" id="user-list"></div>
+            <div id="system-stats" style="display: none; margin-top: 15px; padding: 10px; background: white; border-radius: 5px;"></div>
+        </div>
+        
+        <div class="display" id="display">0</div>
+        
+        <div class="result" id="result">Результат: </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="basic">Основные</div>
+            <div class="tab" data-tab="scientific">Научные</div>
+            <div class="tab" data-tab="pro" id="pro-tab" style="display: none;">Pro🎃</div>
+            <div class="tab" data-tab="formulas" id="formulas-tab" style="display: none;">Формулы Pro+☃️</div>
+            <div class="tab" data-tab="deepseek">Mini DeepSeek</div>
+            <div class="tab" data-tab="event">⚡ Ивент</div>
+            <div class="tab" data-tab="history">История</div>
+        </div>
+        
+        <!-- Основная вкладка калькулятора -->
+        <div class="tab-content active" id="basic-tab">
+            <div class="buttons-container">
+                <button class="button clear" id="clear">C</button>
+                <button class="button clear" id="clear-entry">CE</button>
+                <button class="button operation" data-operation="backspace">⌫</button>
+                <button class="button operation" data-operation="/">/</button>
+                
+                <button class="button number" data-value="7">7</button>
+                <button class="button number" data-value="8">8</button>
+                <button class="button number" data-value="9">9</button>
+                <button class="button operation" data-operation="*">×</button>
+                
+                <button class="button number" data-value="4">4</button>
+                <button class="button number" data-value="5">5</button>
+                <button class="button number" data-value="6">6</button>
+                <button class="button operation" data-operation="-">-</button>
+                
+                <button class="button number" data-value="1">1</button>
+                <button class="button number" data-value="2">2</button>
+                <button class="button number" data-value="3">3</button>
+                <button class="button operation" data-operation="+">+</button>
+                
+                <button class="button number zero" data-value="0">0</button>
+                <button class="button number" data-value=".">.</button>
+                <button class="button equals" id="equals">=</button>
+            </div>
+
+            <!-- Специальные возможности подписок -->
+            <div class="premium-features" id="premium-features">
+                <div class="premium-title">🎁 Специальные возможности</div>
+                <div class="features-grid">
+                    <div class="feature-card pro">
+                        <div class="feature-icon">🎃</div>
+                        <div class="feature-name">Pro Подписка</div>
+                        <div class="feature-desc">
+                            • Расширенные математические функции<br>
+                            • Работа с матрицами<br>
+                            • Комплексные числа<br>
+                            • Векторные операции<br>
+                            • Интегралы и производные
+                        </div>
+                    </div>
+                    <div class="feature-card pro-plus">
+                        <div class="feature-icon">☃️</div>
+                        <div class="feature-name">Pro+ Подписка</div>
+                        <div class="feature-desc">
+                            • Все возможности Pro<br>
+                            • Продвинутые формулы<br>
+                            • Преобразования Фурье<br>
+                            • Дифференциальные уравнения<br>
+                            • Статистический анализ<br>
+                            • Квантовые вычисления
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Научная вкладка -->
+        <div class="tab-content" id="scientific-tab">
+            <div class="scientific-buttons">
+                <button class="button scientific" data-operation="sin">sin</button>
+                <button class="button scientific" data-operation="cos">cos</button>
+                <button class="button scientific" data-operation="tan">tan</button>
+                <button class="button scientific" data-operation="log">log</button>
+                
+                <button class="button scientific" data-operation="asin">sin⁻¹</button>
+                <button class="button scientific" data-operation="acos">cos⁻¹</button>
+                <button class="button scientific" data-operation="atan">tan⁻¹</button>
+                <button class="button scientific" data-operation="ln">ln</button>
+                
+                <button class="button scientific" data-operation="sqrt">√</button>
+                <button class="button scientific" data-operation="power">x²</button>
+                <button class="button scientific" data-operation="cube">x³</button>
+                <button class="button scientific" data-operation="exp">eˣ</button>
+                
+                <button class="button scientific" data-operation="factorial">x!</button>
+                <button class="button scientific" data-operation="pi">π</button>
+                <button class="button scientific" data-operation="e">e</button>
+                <button class="button scientific" data-operation="abs">|x|</button>
+            </div>
+            
+            <div class="scientific-row">
+                <button class="button scientific" data-operation="hypot">hypot</button>
+                <button class="button scientific" data-operation="deg">deg</button>
+                <button class="button scientific" data-operation="rad">rad</button>
+                <button class="button scientific" data-operation="mod">mod</button>
+                <button class="button scientific" data-operation="rand">rand</button>
+            </div>
+        </div>
+        
+        <!-- Вкладка Pro -->
+        <div class="tab-content" id="pro-tab">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #ff6b6b;">🎃 Pro Функции</h3>
+                <p>Расширенные возможности для подписчиков Pro</p>
+            </div>
+            
+            <div class="scientific-buttons">
+                <button class="button pro-feature" data-operation="matrix">Матрицы</button>
+                <button class="button pro-feature" data-operation="determinant">Детерминант</button>
+                <button class="button pro-feature" data-operation="transpose">Транспонирование</button>
+                
+                <button class="button pro-feature" data-operation="integral">Интеграл</button>
+                <button class="button pro-feature" data-operation="derivative">Производная</button>
+                <button class="button pro-feature" data-operation="limit">Предел</button>
+                
+                <button class="button pro-feature" data-operation="complex">Комплексные</button>
+                <button class="button pro-feature" data-operation="polar">Полярные</button>
+                <button class="button pro-feature" data-operation="vector">Векторы</button>
+
+                <button class="button pro-feature" data-operation="eigen">Собств. значения</button>
+                <button class="button pro-feature" data-operation="inverse">Обратная матрица</button>
+                <button class="button pro-feature" data-operation="cross">Векторное произведение</button>
+
+                <button class="button pro-feature" data-operation="gradient">Градиент</button>
+                <button class="button pro-feature" data-operation="divergence">Дивергенция</button>
+                <button class="button pro-feature" data-operation="curl">Ротор</button>
+            </div>
+
+            <!-- Формулы для Pro -->
+            <div class="formula-section">
+                <h4>🎃 Pro Формулы</h4>
+                <div class="formula-buttons">
+                    <button class="button pro-feature" data-formula="quadratic">Квадратное уравнение</button>
+                    <button class="button pro-feature" data-formula="pythagoras">Теорема Пифагора</button>
+                    <button class="button pro-feature" data-formula="circle-area">Площадь круга</button>
+                    <button class="button pro-feature" data-formula="sphere-volume">Объем сферы</button>
+                    <button class="button pro-feature" data-formula="cylinder-volume">Объем цилиндра</button>
+                    <button class="button pro-feature" data-formula="distance-2d">Расстояние 2D</button>
+                </div>
+            </div>
+
+            <div class="premium-features">
+                <div class="premium-title">🎃 Преимущества Pro подписки</div>
+                <div style="text-align: center; color: #666; margin-top: 10px;">
+                    • Работа с матрицами любой размерности<br>
+                    • Комплексные числа и операции с ними<br>
+                    • Векторный анализ и операции<br>
+                    • Дифференциальное и интегральное исчисление<br>
+                    • Решение систем уравнений<br>
+                    • Статистические функции
+                </div>
+            </div>
+        </div>
+        
+        <!-- Вкладка Формулы Pro+ -->
+        <div class="tab-content" id="formulas-tab">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #a8edea;">☃️ Pro+ Формулы</h3>
+                <p>Эксклюзивные формулы для подписчиков Pro+</p>
+            </div>
+            
+            <!-- Формулы из Pro -->
+            <div class="formula-section">
+                <h4>🎃 Pro Формулы</h4>
+                <div class="formula-buttons">
+                    <button class="button pro-feature" data-formula="quadratic">Квадратное уравнение</button>
+                    <button class="button pro-feature" data-formula="pythagoras">Теорема Пифагора</button>
+                    <button class="button pro-feature" data-formula="circle-area">Площадь круга</button>
+                    <button class="button pro-feature" data-formula="sphere-volume">Объем сферы</button>
+                    <button class="button pro-feature" data-formula="cylinder-volume">Объем цилиндра</button>
+                    <button class="button pro-feature" data-formula="distance-2d">Расстояние 2D</button>
+                </div>
+            </div>
+            
+            <!-- Эксклюзивные формулы Pro+ -->
+            <div class="formula-section">
+                <h4>☃️ Pro+ Эксклюзив</h4>
+                <div class="formula-buttons">
+                    <button class="button pro-plus-feature" data-formula="fourier">Ряд Фурье</button>
+                    <button class="button pro-plus-feature" data-formula="laplace">Преобразование Лапласа</button>
+                    <button class="button pro-plus-feature" data-formula="matrix-inverse">Обратная матрица</button>
+                    <button class="button pro-plus-feature" data-formula="eigenvalues">Собственные значения</button>
+                    <button class="button pro-plus-feature" data-formula="statistics">Статистика</button>
+                    <button class="button pro-plus-feature" data-formula="probability">Вероятность</button>
+                    <button class="button pro-plus-feature" data-formula="calculus">Матанализ</button>
+                    <button class="button pro-plus-feature" data-formula="differential">Дифф. уравнения</button>
+                    <button class="button pro-plus-feature" data-formula="quantum">Квантовая механика</button>
+                    <button class="button pro-plus-feature" data-formula="fourier-transform">Преобр. Фурье</button>
+                    <button class="button pro-plus-feature" data-formula="z-transform">Z-преобразование</button>
+                    <button class="button pro-plus-feature" data-formula="wave-equation">Волновое уравнение</button>
+                </div>
+            </div>
+
+            <div class="premium-features">
+                <div class="premium-title">☃️ Преимущества Pro+ подписки</div>
+                <div style="text-align: center; color: #666; margin-top: 10px;">
+                    • Все возможности Pro подписки<br>
+                    • Продвинутые математические преобразования<br>
+                    • Решение дифференциальных уравнений<br>
+                    • Статистический анализ и распределения<br>
+                    • Квантово-механические вычисления<br>
+                    • Специальные функции и преобразования<br>
+                    • Численные методы высшего порядка
+                </div>
+            </div>
+        </div>
+        
+        <!-- Вкладка DeepSeek -->
+        <div class="tab-content" id="deepseek-tab">
+            <div style="text-align: center; padding: 40px 20px;">
+                <h3 style="color: #667eea; margin-bottom: 20px;">🧠 Mini DeepSeek Transformer</h3>
+                <p style="margin-bottom: 20px; color: #666;">Искусственный интеллект для сложных вычислений</p>
+                
+                <div class="form-group">
+                    <textarea id="ai-prompt" placeholder="Опишите вашу математическую задачу или введите уравнение..." 
+                             style="height: 100px; margin-bottom: 15px;"></textarea>
+                    <button class="auth-button" id="ai-calculate" style="width: 100%;">🤖 Решить с помощью AI</button>
+                </div>
+                
+                <div id="ai-result" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; display: none;">
+                    <h4 style="color: #333; margin-bottom: 10px;">Результат AI:</h4>
+                    <div id="ai-result-text"></div>
+                </div>
+
+                <div class="premium-features" style="margin-top: 30px;">
+                    <div class="premium-title">🚀 Улучшенный AI с подпиской</div>
+                    <div style="text-align: center; color: #666; margin-top: 10px;">
+                        <strong>Pro🎃:</strong> Расширенный контекст AI • Приоритетная обработка<br>
+                        <strong>Pro+☃️:</strong> Максимальная точность • Сложные вычисления • Графический анализ
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Вкладка Ивент -->
+        <div class="tab-content" id="event-tab">
+            <div class="event-section">
+                <div class="event-title">Школа Чародейства и Волшебства Хогвартс</div>
+                
+                <!-- Отображение очков пользователя -->
+                <div class="user-points-display" id="user-points-display">
+                    ✨ Ваши магические очки: <span id="user-points">0</span> ✨
+                </div>
+                
+                <!-- Распределяющая Шляпа -->
+                <div class="sorting-hat">
+                    <div class="hat-message" id="hat-message">
+                        "Так, трудно... очень трудно... Вижу я, что смелость в тебе есть, и ум тоже... Но куда же тебя определить?"
+                    </div>
+                    <button class="sort-button" id="sorting-button">🎩 Пройти распределение</button>
+                </div>
+                
+                <!-- Таймер турнира -->
+                <div class="magical-timer">
+                    <div class="timer-title">⚡ Турнир Трех Волшебников ⚡</div>
+                    <div class="timer-display" id="hogwarts-timer">23:59:59</div>
+                    <div style="margin-top: 10px; font-size: 14px; color: #c77dff;">
+                        До окончания турнира
+                    </div>
+                </div>
+                
+                <!-- Факультеты -->
+                <div class="houses-container">
+                    <div class="house-card gryffindor" data-house="gryffindor">
+                        <span class="house-icon">🦁</span>
+                        <div class="house-name">Гриффиндор</div>
+                        <div class="house-points" id="gryffindor-points">350 очков</div>
+                        <div class="house-progress">
+                            <div class="house-progress-bar" id="gryffindor-progress" style="width: 70%"></div>
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9;">Отвага и благородство</div>
+                    </div>
+                    
+                    <div class="house-card slytherin" data-house="slytherin">
+                        <span class="house-icon">🐍</span>
+                        <div class="house-name">Слизерин</div>
+                        <div class="house-points" id="slytherin-points">320 очков</div>
+                        <div class="house-progress">
+                            <div class="house-progress-bar" id="slytherin-progress" style="width: 64%"></div>
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9;">Амбиции и хитрость</div>
+                    </div>
+                    
+                    <div class="house-card ravenclaw" data-house="ravenclaw">
+                        <span class="house-icon">🦅</span>
+                        <div class="house-name">Когтевран</div>
+                        <div class="house-points" id="ravenclaw-points">280 очков</div>
+                        <div class="house-progress">
+                            <div class="house-progress-bar" id="ravenclaw-progress" style="width: 56%"></div>
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9;">Мудрость и ученость</div>
+                    </div>
+                    
+                    <div class="house-card hufflepuff" data-house="hufflepuff">
+                        <span class="house-icon">🦡</span>
+                        <div class="house-name">Пуффендуй</div>
+                        <div class="house-points" id="hufflepuff-points">260 очков</div>
+                        <div class="house-progress">
+                            <div class="house-progress-bar" id="hufflepuff-progress" style="width: 52%"></div>
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9;">Верность и трудолюбие</div>
+                    </div>
+                </div>
+                
+                <!-- Магический магазин -->
+                <div class="magic-shop">
+                    <div class="shop-title">🛍️ Магический магазин</div>
+                    <div class="shop-items">
+                        <div class="shop-item" data-item="pro-subscription" data-price="100">
+                            <span class="shop-item-icon">🎃</span>
+                            <div class="shop-item-name">Pro Подписка</div>
+                            <div class="shop-item-price">100 очков</div>
+                            <div class="shop-item-desc">30 дней доступа</div>
+                        </div>
+                        <div class="shop-item" data-item="pro-plus-subscription" data-price="250">
+                            <span class="shop-item-icon">☃️</span>
+                            <div class="shop-item-name">Pro+ Подписка</div>
+                            <div class="shop-item-price">250 очков</div>
+                            <div class="shop-item-desc">30 дней доступа</div>
+                        </div>
+                        <div class="shop-item" data-item="lightning" data-price="500">
+                            <span class="shop-item-icon">⚡</span>
+                            <div class="shop-item-name">Молния в бутылке</div>
+                            <div class="shop-item-price">500 очков</div>
+                            <div class="shop-item-desc">Эксклюзивный бонус</div>
+                        </div>
+                        <div class="shop-item" data-item="fire-cup" data-price="1000">
+                            <span class="shop-item-icon">🏆</span>
+                            <div class="shop-item-name">Кубок Огня</div>
+                            <div class="shop-item-price">1000 очков</div>
+                            <div class="shop-item-desc">Главный приз</div>
+                        </div>
+                        <div class="shop-item" data-item="magic-wand" data-price="300">
+                            <span class="shop-item-icon">✨</span>
+                            <div class="shop-item-name">Волшебная палочка</div>
+                            <div class="shop-item-price">300 очков</div>
+                            <div class="shop-item-desc">+50% к очкам</div>
+                        </div>
+                        <div class="shop-item" data-item="invisibility-cloak" data-price="400">
+                            <span class="shop-item-icon">👻</span>
+                            <div class="shop-item-name">Мантия-невидимка</div>
+                            <div class="shop-item-price">400 очков</div>
+                            <div class="shop-item-desc">Секретные функции</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Заклинания и задания -->
+                <div class="spell-challenges">
+                    <div class="spell-title">📜 Магические задания</div>
+                    <div class="spell-grid">
+                        <div class="spell-item" data-challenge="calculations" data-points="10">
+                            <span class="spell-icon">✨</span>
+                            <div>10 вычислений</div>
+                            <small>+10 очков</small>
+                        </div>
+                        <div class="spell-item" data-challenge="equations" data-points="15">
+                            <span class="spell-icon">🔮</span>
+                            <div>Решить 5 уравнений</div>
+                            <small>+15 очков</small>
+                        </div>
+                        <div class="spell-item" data-challenge="geometry" data-points="20">
+                            <span class="spell-icon">📐</span>
+                            <div>Геометрические заклинания</div>
+                            <small>+20 очков</small>
+                        </div>
+                        <div class="spell-item" data-challenge="scientific" data-points="12">
+                            <span class="spell-icon">⚡</span>
+                            <div>Научные расчеты</div>
+                            <small>+12 очков</small>
+                        </div>
+                        <div class="spell-item" data-challenge="matrices" data-points="25">
+                            <span class="spell-icon">🧪</span>
+                            <div>Зельеварение</div>
+                            <small>+25 очков</small>
+                        </div>
+                        <div class="spell-item" data-challenge="statistics" data-points="18">
+                            <span class="spell-icon">🔢</span>
+                            <div>Матричная магия</div>
+                            <small>+18 очков</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Общая гостиная -->
+                <div class="common-room" id="common-room">
+                    <div class="room-title">🏰 Общая гостиная вашего факультета</div>
+                    <div style="text-align: center; color: #ccc; font-size: 14px; margin-top: 10px;">
+                        Вы еще не распределены по факультету. Нажмите на Распределяющую Шляпу!
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- История вычислений -->
+        <div class="tab-content" id="history-tab">
+            <div class="history" id="history-list">
+                <div class="history-item">
+                    <span>История вычислений появится здесь</span>
+                    <span class="history-time">После первых расчетов</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
